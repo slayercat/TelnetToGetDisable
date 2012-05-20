@@ -40,7 +40,7 @@ namespace DisableGetServer
 
         const int PORT = 9999;
 
-        void WaitWebConnection()
+        void Web_WaitWebConnection()
         {
 
             System.Net.Sockets.TcpListener listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any,PORT);
@@ -57,14 +57,14 @@ namespace DisableGetServer
             while(true)
             {
                 var comein=listener.AcceptTcpClient();
-                var dealing = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(socketDo));
+                var dealing = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(Web_AfterConnectionGetReportAndSendToUser));
                 dealing.Start(comein);
                 
             }
         }
 
 
-        void socketDo(object a)
+        void Web_AfterConnectionGetReportAndSendToUser(object a)
         {
             System.Net.Sockets.TcpClient socketcomein = a as System.Net.Sockets.TcpClient;
 
@@ -95,7 +95,7 @@ namespace DisableGetServer
                     socketcomein.Close();
                     return;
                 }
-                string report = GetReport(where[1]);
+                string report = Web_GetReport(where[1]);
                 string head = "http/1.1 200 ok\n" +
                             "Content-Type: text/html\n";
                 byte[] content = System.Text.Encoding.UTF8.GetBytes(report);
@@ -115,7 +115,7 @@ namespace DisableGetServer
 
 
 
-        string GetReport(string location)
+        string Web_GetReport(string location)
         {
             string result = "";
             try
@@ -383,13 +383,13 @@ namespace DisableGetServer
             LogInToEvent.WriteDebug("开始初始化线程");
             for (int c = 0; c < pool.Length; ++c)
             {
-                pool[c] = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(runningContent));
+                pool[c] = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(Scan_DecideIfNeedsScanAndDispatchScan));
                 pool[c].Start(c);
             }
             LogInToEvent.WriteDebug("初始化线程结束");
 
             LogInToEvent.WriteDebug("初始化WEB访问线程");
-            itemThredOfWaitWeb=new System.Threading.Thread(new System.Threading.ThreadStart(WaitWebConnection));
+            itemThredOfWaitWeb=new System.Threading.Thread(new System.Threading.ThreadStart(Web_WaitWebConnection));
             itemThredOfWaitWeb.Start();
             LogInToEvent.WriteDebug("初始化WEB访问线程结束");
         }
@@ -415,7 +415,7 @@ namespace DisableGetServer
         }
 
         
-        void runningContent(object count)
+        void Scan_DecideIfNeedsScanAndDispatchScan(object count)
         {
             int currItemCount = (int)count;
 
@@ -447,7 +447,7 @@ namespace DisableGetServer
                         {
                             //需要刷新
                             LogInToEvent.WriteDebug("需要并进行刷新" + "，NAME=" + nowUsingItem.Name + " IP=" + nowUsingItem.IpAddress);
-                            doFlushJobs(nowUsingItem);
+                            Scan_FlushSwitchAndScanForResult(nowUsingItem);
                         }
                         else
                         {
@@ -458,7 +458,7 @@ namespace DisableGetServer
                             System.Threading.Thread.Sleep(var_target - p);
                             //刷新
                             LogInToEvent.WriteDebug("等待结束，进行刷新" + "，NAME=" + nowUsingItem.Name + " IP=" + nowUsingItem.IpAddress);
-                            doFlushJobs(nowUsingItem);
+                            Scan_FlushSwitchAndScanForResult(nowUsingItem);
                         }
                         LogInToEvent.WriteDebug("处理结束，加入队列" + "，NAME=" + nowUsingItem.Name + " IP=" + nowUsingItem.IpAddress);
                         lock (lockServQueue)
@@ -493,7 +493,7 @@ namespace DisableGetServer
 
 
 
-        private void doFlushJobs(DisableGetObjects.Setting_Type_Switch nowUsingItem)
+        private void Scan_FlushSwitchAndScanForResult(DisableGetObjects.Setting_Type_Switch nowUsingItem)
         {
             
                 const string nowProgressing = "正在处理...";
@@ -695,7 +695,13 @@ namespace DisableGetServer
                     lock (nowUsingItem)
                     { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令\n"; }
 
+
+                    //清除屏幕，因为之前已经有enable态的提示符了。
+
                     telnetSwitch.VirtualScreen.CleanScreen();
+
+                    
+
 
                     telnetSwitch.SendResponse(whatTypeOfSwitch.CommandForFindStatus, true);
                     
@@ -741,9 +747,56 @@ namespace DisableGetServer
                              System.Threading.Thread.Sleep(1000);
                         
                          }*/
-                        telnetSwitch.SendResponse(" \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n", true);
-                        //20个
-                        telnetSwitch.WaitForChangedScreen();
+
+
+
+
+
+
+
+
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        //ora:telnetSwitch.SendResponse(" \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n", true);
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        //大量交换机显示==more==信息，因此需要等待命令行
+                        //added @ 2012 05 20 by sc
+
+                        ///最大尝试次数
+                        const int MAXIMUM_TRY_COUNT = 20;
+                        for (int currectTry = 0; currectTry <= MAXIMUM_TRY_COUNT; ++currectTry)
+                        {
+                            telnetSwitch.WaitForChangedScreen();
+                            //若是屏幕上没有出现命令提示符
+                            if (telnetSwitch.VirtualScreen.FindOnScreen(whatTypeOfSwitch.PromptForCommandAfterEnable, false) != null)
+                            {
+                                break;
+                            }
+
+                            if (currectTry == MAXIMUM_TRY_COUNT)
+                            {
+                                //到达最大重试门限
+                                lock (nowUsingItem)
+                                {
+                                    nowUsingItem.LastFlushLog += "\n到达取得数据最大门限\n";
+                                }
+                            }
+                            else
+                            {
+                      
+                                //发送空格以及两个回车
+                                telnetSwitch.SendResponse(" ", true);
+                            }
+                            
+                        }
+
+
+
+                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        
+
+
+
+                        
 
                         string dataContains = telnetSwitch.VirtualScreen.Hardcopy().Trim(); ;
 
@@ -855,14 +908,16 @@ namespace DisableGetServer
 
                 }
 
+                
+                lock (nowUsingItem)
+                {
+                    nowUsingItem.LastFlushLog += "\n\n SESSIONLOG:\n\n" + telnetSwitch.GetHistory;
+                }
+
                 if (telnetSwitch.IsOpenConnection())
                 {
                     telnetSwitch.SendLogout();
                     telnetSwitch.Close();
-                }
-                lock (nowUsingItem)
-                {
-                    nowUsingItem.LastFlushLog += "\n\n SESSIONLOG:\n\n" + telnetSwitch.GetHistory;
                 }
                 return;
 
