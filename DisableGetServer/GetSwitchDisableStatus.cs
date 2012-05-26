@@ -10,6 +10,9 @@ using System.Text;
 
 namespace DisableGetServer
 {
+    /// <summary>
+    /// 这是一个服务，用于运行期间检查交换机被disable的情况，并在用户访问时提供web界面。
+    /// </summary>
     public partial class GetSwitchDisableStatus : ServiceBase
     {
         public GetSwitchDisableStatus()
@@ -17,29 +20,54 @@ namespace DisableGetServer
             InitializeComponent();
         }
 
+        /// <summary>
+        /// 当前程序的设置
+        /// </summary>
         DisableGetObjects.ApplicationSettings settings=new DisableGetObjects.ApplicationSettings();
 
-        
+        /// <summary>
+        /// 用于在交换机类型的List和Array间相互转换。
+        /// </summary>
+        /// <returns></returns>
         public DisableGetObjects.Setting_Type_Switch[] GetListItems()
         {
             return servList.ToArray();
         }
 
-
+        /// <summary>
+        /// 同时进行扫描交换机disable的线程个数
+        /// </summary>
         const int THREAD_COUNTS = 10;
 
+        /// <summary>
+        /// 线程列表/线程池（称为线程池似乎有点不太妥当，因为他们只有sleep，而不停息）
+        /// </summary>
         System.Threading.Thread[] pool = new System.Threading.Thread[THREAD_COUNTS];
 
+        /// <summary>
+        /// 用于等待WEB访问的线程
+        /// </summary>
         System.Threading.Thread itemThredOfWaitWeb = null;
 
+        /// <summary>
+        /// 扫描过程中出错的交换机
+        /// </summary>
         System.Collections.Generic.HashSet<DisableGetObjects.Setting_Type_Switch> hashset_switchs_error = new HashSet<DisableGetObjects.Setting_Type_Switch>();
 
+        /// <summary>
+        /// 有被disable的端口的交换机
+        /// </summary>
         System.Collections.Generic.HashSet<DisableGetObjects.Setting_Type_Switch> hashset_switchs_disables = new HashSet<DisableGetObjects.Setting_Type_Switch>();
 
         
-
+        /// <summary>
+        /// WEB访问端口
+        /// </summary>
         const int PORT = 9999;
 
+        /// <summary>
+        /// 用于等待web访问，web访问线程的执行方
+        /// </summary>
         void Web_WaitWebConnection()
         {
 
@@ -63,7 +91,10 @@ namespace DisableGetServer
             }
         }
 
-
+        /// <summary>
+        /// 在web访问到来时取得访问报告，并返回给用户
+        /// </summary>
+        /// <param name="a"></param>
         void Web_AfterConnectionGetReportAndSendToUser(object a)
         {
             System.Net.Sockets.TcpClient socketcomein = a as System.Net.Sockets.TcpClient;
@@ -114,7 +145,11 @@ namespace DisableGetServer
         }
 
 
-
+        /// <summary>
+        /// 用于取得报告
+        /// </summary>
+        /// <param name="location">指明位置的字符串，所有包含该字符串的说明交换机均会被取到</param>
+        /// <returns></returns>
         string Web_GetReport(string location)
         {
             string result = "";
@@ -328,20 +363,41 @@ namespace DisableGetServer
             return result;
         }
 
-
+        /// <summary>
+        /// 交换机队列，扫描时使用
+        /// </summary>
         Queue<DisableGetObjects.Setting_Type_Switch> servQueue = new Queue<DisableGetObjects.Setting_Type_Switch>();
 
+        /// <summary>
+        /// 交换机列表，给出报告时使用
+        /// </summary>
         List<DisableGetObjects.Setting_Type_Switch> servList = new List<DisableGetObjects.Setting_Type_Switch>();
 
+        /// <summary>
+        /// 当前正在扫描的项，为线程个数
+        /// </summary>
         DisableGetObjects.Setting_Type_Switch[] servItem = new DisableGetObjects.Setting_Type_Switch[THREAD_COUNTS];
 
-
+        /// <summary>
+        /// 交换机队列锁
+        /// </summary>
         private object lockServQueue = 1;
+        /// <summary>
+        /// disable交换机列表锁
+        /// </summary>
         private object lockdisablehashset = 1;
+        /// <summary>
+        /// 错误列表锁
+        /// </summary>
         private object lockerrorhashset = 1;
+        /// <summary>
+        /// servItem锁，锁定当前正在扫描的项
+        /// </summary>
         private object lockservItem = 1;
 
-
+        /// <summary>
+        /// 初始化本程序
+        /// </summary>
         public void InitAndStart()
         {
 
@@ -395,7 +451,11 @@ namespace DisableGetServer
         }
 
 
-
+        /// <summary>
+        /// 只在初始化时调用：将交换机的配置树转换为列表
+        /// </summary>
+        /// <param name="iConfigSwitchOrGroup">传入的配置树</param>
+        /// <param name="servList">传出的列表</param>
         private void turnItemIntoList(DisableGetObjects.IConfigSwitchOrGroup[] iConfigSwitchOrGroup, ref List<DisableGetObjects.Setting_Type_Switch> servList)
         {
             foreach (var t in iConfigSwitchOrGroup)
@@ -414,7 +474,10 @@ namespace DisableGetServer
             }
         }
 
-        
+        /// <summary>
+        /// 如果需要的话，调度刷新。刷新线程调度项目
+        /// </summary>
+        /// <param name="count">当前执行该函数的为第几个线程</param>
         void Scan_DecideIfNeedsScanAndDispatchScan(object count)
         {
             int currItemCount = (int)count;
@@ -492,7 +555,10 @@ namespace DisableGetServer
         }
 
 
-
+        /// <summary>
+        /// 用于刷新指定交换机，并报告是否被disable
+        /// </summary>
+        /// <param name="nowUsingItem">被刷新的项</param>
         private void Scan_FlushSwitchAndScanForResult(DisableGetObjects.Setting_Type_Switch nowUsingItem)
         {
             
@@ -958,7 +1024,10 @@ namespace DisableGetServer
         }
 
 
-
+        /// <summary>
+        /// 启动本服务，调度初始化
+        /// </summary>
+        /// <param name="args"></param>
         protected override void OnStart(string[] args)
         {
             AutoLog = true;
@@ -976,7 +1045,9 @@ namespace DisableGetServer
         }
 
 
-
+        /// <summary>
+        /// 停止本服务，清理
+        /// </summary>
         protected override void OnStop()
         {
             //停止全部线程
