@@ -13,3 +13,14 @@ F:\文档\Documents\Visual Studio 2010\Projects\NetworkInformationCenter\TelnetT
 F:\文档\Documents\Visual Studio 2010\Projects\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\DisableGetConfig.ConfigForItemAndSwitch.resources
 F:\文档\Documents\Visual Studio 2010\Projects\NetworkInformationCenter\TelnetToGetDisable\OUTPUT_DIR\DisableGetConfig.exe
 F:\文档\Documents\Visual Studio 2010\Projects\NetworkInformationCenter\TelnetToGetDisable\OUTPUT_DIR\DisableGetConfig.pdb
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\OUTPUT_DIR\DisableGetConfig.exe
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\OUTPUT_DIR\DisableGetConfig.pdb
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\ResolveAssemblyReference.cache
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\DisableGetConfig.ConfigForItemAndSwitch.resources
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\DisableGetConfig.ConfigForSwitchType.resources
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\DisableGetConfig.Form1.resources
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\DisableGetConfig.Properties.Resources.resources
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\GenerateResource.read.1.tlog
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\GenerateResource.write.1.tlog
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\DisableGetConfig.exe
+F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetConfig\obj\x86\Debug\DisableGetConfig.pdb

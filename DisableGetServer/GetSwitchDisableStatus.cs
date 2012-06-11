@@ -827,8 +827,14 @@ namespace DisableGetServer
                         //大量交换机显示==more==信息，因此需要等待命令行
                         //added @ 2012 05 20 by sc
 
+                        for (int counter = 0; counter < 20; ++counter)
+                        {
+                            telnetSwitch.SendResponse(" ", false);
+                        }
+
                         ///最大尝试次数
                         const int MAXIMUM_TRY_COUNT = 20;
+
                         for (int currectTry = 0; currectTry <= MAXIMUM_TRY_COUNT; ++currectTry)
                         {
                             telnetSwitch.WaitForChangedScreen();
