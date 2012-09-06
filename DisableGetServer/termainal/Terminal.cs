@@ -595,11 +595,18 @@ namespace Telnet
 			DateTime endTime = this.TimeoutAbsoluteTime(timeoutSeconds);
 			do // run at least once
 			{
-				lock(this.virtualScreen) 
-				{
-					if (this.virtualScreen.ChangedScreen)
-						return true;
-				}
+                if (this.virtualScreen != null)//这个if是由肥猫添加的。
+                {
+                    lock (this.virtualScreen)
+                    {
+                        if (this.virtualScreen.ChangedScreen)
+                            return true;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
 				Thread.Sleep(sleepTimeMs);
 			} while (DateTime.Now <= endTime);
 			return false;

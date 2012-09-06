@@ -23,7 +23,7 @@ namespace DisableGetServer
         /// <summary>
         /// 当前程序的设置
         /// </summary>
-        DisableGetObjects.ApplicationSettings settings=new DisableGetObjects.ApplicationSettings();
+        DisableGetObjects.ApplicationSettings settings = new DisableGetObjects.ApplicationSettings();
 
         /// <summary>
         /// 用于在交换机类型的List和Array间相互转换。
@@ -59,7 +59,7 @@ namespace DisableGetServer
         /// </summary>
         System.Collections.Generic.HashSet<DisableGetObjects.Setting_Type_Switch> hashset_switchs_disables = new HashSet<DisableGetObjects.Setting_Type_Switch>();
 
-        
+
         /// <summary>
         /// WEB访问端口
         /// </summary>
@@ -71,7 +71,7 @@ namespace DisableGetServer
         void Web_WaitWebConnection()
         {
 
-            System.Net.Sockets.TcpListener listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any,PORT);
+            System.Net.Sockets.TcpListener listener = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, PORT);
             try
             {
                 listener.Start();
@@ -82,12 +82,12 @@ namespace DisableGetServer
                 LogInToEvent.WriteError("端口" + PORT.ToString() + "已经被占用");
                 System.Diagnostics.Process.GetCurrentProcess().Kill();
             }
-            while(true)
+            while (true)
             {
-                var comein=listener.AcceptTcpClient();
+                var comein = listener.AcceptTcpClient();
                 var dealing = new System.Threading.Thread(new System.Threading.ParameterizedThreadStart(Web_AfterConnectionGetReportAndSendToUser));
                 dealing.Start(comein);
-                
+
             }
         }
 
@@ -176,11 +176,11 @@ namespace DisableGetServer
                 contentbuilder.AppendLine("全部项目列表");
                 contentbuilder.AppendLine("</a>");
 
-                
+
                 location = location.Trim();
                 if (location == "/")
                 {
-                    
+
                     contentbuilder.AppendLine("<h1>全局错误信息</h1>");
                     contentbuilder.AppendLine("<p>");
                     string errlog = DisableGetObjects.Log.OverallLog.GetErr();
@@ -287,7 +287,7 @@ namespace DisableGetServer
 
                     contentbuilder.AppendLine("<h1>");
                     //Server
-                    contains=System.Web.HttpUtility.UrlDecode(contains, System.Text.Encoding.UTF8); 
+                    contains = System.Web.HttpUtility.UrlDecode(contains, System.Text.Encoding.UTF8);
                     contentbuilder.AppendLine("Contains=" + contains);
                     contentbuilder.AppendLine("</h1>");
                     var resultSearched = Helper.GetSwitchByName(servList, contains);
@@ -336,29 +336,29 @@ namespace DisableGetServer
                 }
                 else
                 {
-                    contentbuilder.AppendLine("错误的请求：目标"+location);
+                    contentbuilder.AppendLine("错误的请求：目标" + location);
                 }
 
                 contentbuilder.AppendLine("</body>");
                 contentbuilder.AppendLine("</html>");
-                result=contentbuilder.ToString();
+                result = contentbuilder.ToString();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
 
-                    result += e.Source;
-                    result += "<br/>";
-                    result += e.Message;
-                    result += "<br/>";
-                    result += e.StackTrace;
-                    result += "<br/>";
-                    System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(e, true);
-                    result += "POSITION:<br/>";
-                    result += "LINE:" + st.GetFrame(0).GetFileLineNumber();
-                    result += "Column:" + st.GetFrame(0).GetFileColumnNumber();
-                    result += "FILE :" + st.GetFrame(0).GetFileName();
-                    
-                    
+                result += e.Source;
+                result += "<br/>";
+                result += e.Message;
+                result += "<br/>";
+                result += e.StackTrace;
+                result += "<br/>";
+                System.Diagnostics.StackTrace st = new System.Diagnostics.StackTrace(e, true);
+                result += "POSITION:<br/>";
+                result += "LINE:" + st.GetFrame(0).GetFileLineNumber();
+                result += "Column:" + st.GetFrame(0).GetFileColumnNumber();
+                result += "FILE :" + st.GetFrame(0).GetFileName();
+
+
             }
             return result;
         }
@@ -407,19 +407,19 @@ namespace DisableGetServer
             LogInToEvent.WriteDebug("读取配置文件完毕");
 
             LogInToEvent.WriteDebug("记录信息 Info:" + DisableGetObjects.Log.OverallLog.GetLog());
-            LogInToEvent.WriteDebug("记录信息 Error:"+i);
-            
+            LogInToEvent.WriteDebug("记录信息 Error:" + i);
+
             if (i.Trim().Length != 0)
             {
-                LogInToEvent.WriteDebug("配置文件错误：\n"+i);
-                throw new Exception("读取配置文件过程中出现问题，记录如下：\n"+i);
+                LogInToEvent.WriteDebug("配置文件错误：\n" + i);
+                throw new Exception("读取配置文件过程中出现问题，记录如下：\n" + i);
             }
             if (
                 settings.FlushTime == 0
                 ||
-                settings.ItemConfigWoods==null
+                settings.ItemConfigWoods == null
                 ||
-                settings.SwitchTypeItems==null
+                settings.SwitchTypeItems == null
                 )
             {
                 LogInToEvent.WriteDebug("没有初始化内容");
@@ -445,7 +445,7 @@ namespace DisableGetServer
             LogInToEvent.WriteDebug("初始化线程结束");
 
             LogInToEvent.WriteDebug("初始化WEB访问线程");
-            itemThredOfWaitWeb=new System.Threading.Thread(new System.Threading.ThreadStart(Web_WaitWebConnection));
+            itemThredOfWaitWeb = new System.Threading.Thread(new System.Threading.ThreadStart(Web_WaitWebConnection));
             itemThredOfWaitWeb.Start();
             LogInToEvent.WriteDebug("初始化WEB访问线程结束");
         }
@@ -561,472 +561,497 @@ namespace DisableGetServer
         /// <param name="nowUsingItem">被刷新的项</param>
         private void Scan_FlushSwitchAndScanForResult(DisableGetObjects.Setting_Type_Switch nowUsingItem)
         {
-            
-                const string nowProgressing = "正在处理...";
+
+            const string nowProgressing = "正在处理...";
+            lock (nowUsingItem)
+            {
+                nowUsingItem.LastFlushLog = "开始处理";
+                nowUsingItem.FlushResult = nowProgressing;
+            }
+            //进行刷新操作
+            const int DieTime = 5;//second
+            Telnet.Terminal telnetSwitch = new Telnet.Terminal(nowUsingItem.IpAddress, 23, DieTime, 800, 600);
+
+            /////////////////
+            LogInToEvent.WriteDebug("试图连接");
+            lock (nowUsingItem)
+            {
+                nowUsingItem.LastFlushLog += "\n试图连接\n";
+            }
+            if (telnetSwitch.Connect())
+            {
+                LogInToEvent.WriteDebug("连接成功");
                 lock (nowUsingItem)
                 {
-                    nowUsingItem.LastFlushLog = "开始处理";
-                    nowUsingItem.FlushResult = nowProgressing;
+                    nowUsingItem.LastFlushLog += "\n连接成功\n";
                 }
-                //进行刷新操作
-                const int DieTime = 5;//second
-                Telnet.Terminal telnetSwitch = new Telnet.Terminal(nowUsingItem.IpAddress, 23, DieTime, 800, 600);
-
-                /////////////////
-                LogInToEvent.WriteDebug("试图连接");
-                lock (nowUsingItem)
+                var whatTypeOfSwitch = DisableGetObjects.ApplicationSettings.GetSwitchTypeByName(settings.SwitchTypeItems, nowUsingItem.SwitchTypeNameBelongTo);
+                if (whatTypeOfSwitch != null)
                 {
-                    nowUsingItem.LastFlushLog += "\n试图连接\n";
-                }
-                if (telnetSwitch.Connect())
-                {
-                    LogInToEvent.WriteDebug("连接成功");
-                    lock (nowUsingItem)
-                    {
-                        nowUsingItem.LastFlushLog += "\n连接成功\n";
-                    }
-                    var whatTypeOfSwitch = DisableGetObjects.ApplicationSettings.GetSwitchTypeByName(settings.SwitchTypeItems, nowUsingItem.SwitchTypeNameBelongTo);
-                    if (whatTypeOfSwitch != null)
-                    {
-                        LogInToEvent.WriteDebug("类型：" + whatTypeOfSwitch.ToString());
-                    }
-                    else
-                    {
-                        lock (nowUsingItem)
-                        {
-                            nowUsingItem.FlushResult = "错误的类型" + nowUsingItem.SwitchTypeNameBelongTo;
-                        }
-                        goto errorProcress;
-                    }
-
-                    telnetSwitch.WaitForChangedScreen();
-                    System.Threading.Thread.Sleep(1000);
-                    //登录用户名
-                    if (whatTypeOfSwitch.IsThisSwitchNeedsOfUserName)
-                    {
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "要求登录用户名");
-                        lock (nowUsingItem)
-                        {
-                            nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "要求登录用户名\n";
-                        }
-                        try
-                        {
-                            telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForUserName);
-                        }
-                        catch (Exception e)
-                        {
-                            lock (nowUsingItem)
-                            {
-                                nowUsingItem.FlushResult = "没有要求登录用户名\n";
-                            }
-                            LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
-                            goto errorProcress;
-                        }
-
-                        telnetSwitch.SendResponse(nowUsingItem.UserName, true);
-                        telnetSwitch.WaitForChangedScreen();
-                        System.Threading.Thread.Sleep(1000);
-                    }
-
-                    //登录密码
-                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "要求登录密码");
-                    lock (nowUsingItem)
-                    {
-                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "要求登录密码\n";
-                    }
-                    try
-                    {
-                        telnetSwitch.WaitForString
-                            (whatTypeOfSwitch.PromptForPassword);
-                    }
-                    catch (Exception e)
-                    {
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
-                        lock (nowUsingItem)
-                        {
-                            nowUsingItem.FlushResult = "没有要求密码或密码请求字符串不正确";
-                        }
-                        goto errorProcress;
-                    }
-                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送登录密码");
-                    lock (nowUsingItem)
-                    {
-                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送登录密码\n";
-                    }
-                    telnetSwitch.SendResponse(nowUsingItem.Password, true);
-                    telnetSwitch.WaitForChangedScreen();
-                    System.Threading.Thread.Sleep(1000);
-                    lock (nowUsingItem)
-                    {
-                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取得结果\n";
-                    }
-
-                    //确认登录密码正确性
-                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "确认登录密码正确性");
-                    nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "确认登录密码正确性\n";
-                    try
-                    {
-                        telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForCommandBeforeEnable);
-                    }
-                    catch (Exception e)
-                    {
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
-                        lock (nowUsingItem)
-                        {
-                            nowUsingItem.FlushResult = "登录密码错误";
-                        }
-                        goto errorProcress;
-                    }
-
-                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送enable");
-                    lock (nowUsingItem)
-                    {
-                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送enable\n";
-                    }
-                    telnetSwitch.SendResponse("enable", true);
-                    telnetSwitch.WaitForChangedScreen();
-                    System.Threading.Thread.Sleep(1000);
-
-                    //enable登录过程
-                    if (whatTypeOfSwitch.IsThisSwitchNeedsOfEnableUserName)
-                    {
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待要求enable用户名登录");
-                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待要求enable用户名登录\n";
-                        try
-                        {
-                            telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForEnableUserName);
-                        }
-                        catch (Exception e)
-                        {
-                            LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
-                            lock (nowUsingItem)
-                            {
-                                nowUsingItem.FlushResult = "没有提示输入enable用户名";
-                            }
-                            goto errorProcress;
-                        }
-                        lock (nowUsingItem)
-                        {
-                            nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送enable用户名\n";
-                        }
-                        telnetSwitch.SendResponse(nowUsingItem.EnableUsername, true);
-                        telnetSwitch.WaitForChangedScreen();
-                        System.Threading.Thread.Sleep(1000);
-                    }
-
-
-                    //enable密码
-                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待要求enable密码");
-                    lock (nowUsingItem)
-                    {
-                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待要求enable密码\n";
-                    }
-                    try
-                    {
-                        telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForEnablePassword);
-                    }
-                    catch (Exception e)
-                    {
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
-                        lock (nowUsingItem)
-                        { nowUsingItem.FlushResult = "没有提示输入enable密码/enable用户名错误？"; }
-                        goto errorProcress;
-                    }
-                    lock (nowUsingItem)
-                    { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送enable密码\n"; }
-                    telnetSwitch.SendResponse(nowUsingItem.EnablePassword, true);
-                    //telnetSwitch.Send("\r\n"); telnetSwitch.Send("\r\n"); telnetSwitch.Send("\r\n");
-                    telnetSwitch.WaitForChangedScreen();
-                    System.Threading.Thread.Sleep(1000);
-
-                    //enable 成功？
-                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "确认enable成功");
-
-                    lock (nowUsingItem)
-                    { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "确认enable成功\n"; }
-                    try
-                    {
-                        telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForCommandAfterEnable);
-                    }
-                    catch (Exception e)
-                    {
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
-                        lock (nowUsingItem)
-                        { nowUsingItem.FlushResult = "没有提示enable提示符，enable 密码错误？"; }
-                        goto errorProcress;
-                    }
-
-                    //发送查询状态信息
-                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令" + whatTypeOfSwitch.CommandForFindStatus);
-                    lock (nowUsingItem)
-                    { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令\n"; }
-
-
-                    //清除屏幕，因为之前已经有enable态的提示符了。
-
-                    telnetSwitch.VirtualScreen.CleanScreen();
-
-                    
-
-
-                    telnetSwitch.SendResponse(whatTypeOfSwitch.CommandForFindStatus, true);
-                    
-                    telnetSwitch.WaitForChangedScreen();
-                    lock (nowUsingItem)
-                    { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令完成\n"; }
-
-                    System.Threading.Thread.Sleep(1000);
-                    lock (nowUsingItem)
-                    { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令完成+1s\n"; }
-                    try
-                    {
-                        //筛选项目
-                        //若没有commandline，则不断发送空格，直到有为止
-                        /*string dataContains = telnetSwitch.WorkingData;
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取到ORA1项目：\n" + dataContains);
-                        while (!dataContains.ToLower().Contains(whatTypeOfSwitch.PromptForCommandAfterEnable.ToLower()))
-                        {
-                            telnetSwitch.Send(" ");
-                            System.Threading.Thread.Sleep(5000);//等待5s
-                            dataContains += telnetSwitch.WorkingData;
-                            LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取到ORA2项目：\n" + dataContains);
-                        }*/
-
-
-
-
-                        /* telnetSwitch.SendResponse(" ",true);
-                         LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待命令行，发送空格1\n");
-                         nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送空格\n";
-                         telnetSwitch.WaitForChangedScreen();
-                         System.Threading.Thread.Sleep(1000);
-                         nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送空格+2s\n";
-                         string wegets = telnetSwitch.GetHistory.Replace(beforeSendSearchCommand, "");
-
-                         while (!wegets.Trim().ToLower().Contains(whatTypeOfSwitch.PromptForCommandAfterEnable.ToLower()))
-                         {
-                             //一直到命令行出来为止
-                             nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待命令行："+wegets+"\n";
-                             LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待命令行，发送空格：" + wegets + "\n");
-                             telnetSwitch.SendResponse(" ", true);
-                             telnetSwitch.WaitForChangedScreen();
-                             System.Threading.Thread.Sleep(1000);
-                        
-                         }*/
-
-
-
-
-
-
-
-
-                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                        //ora:telnetSwitch.SendResponse(" \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n", true);
-                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                        //大量交换机显示==more==信息，因此需要等待命令行
-                        //added @ 2012 05 20 by sc
-
-                        for (int counter = 0; counter < 20; ++counter)
-                        {
-                            telnetSwitch.SendResponse(" ", false);
-                        }
-
-                        ///最大尝试次数
-                        const int MAXIMUM_TRY_COUNT = 20;
-
-                        for (int currectTry = 0; currectTry <= MAXIMUM_TRY_COUNT; ++currectTry)
-                        {
-                            telnetSwitch.WaitForChangedScreen();
-                            //若是屏幕上没有出现命令提示符
-                            if (telnetSwitch.VirtualScreen.FindOnScreen(whatTypeOfSwitch.PromptForCommandAfterEnable, false) != null)
-                            {
-                                break;
-                            }
-
-                            if (currectTry == MAXIMUM_TRY_COUNT)
-                            {
-                                //到达最大重试门限
-                                lock (nowUsingItem)
-                                {
-                                    nowUsingItem.LastFlushLog += "\n到达取得数据最大门限\n";
-                                }
-                            }
-                            else
-                            {
-                      
-                                //发送空格以及两个回车
-                                telnetSwitch.SendResponse(" ", true);
-                            }
-                            
-                        }
-
-
-
-                        //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                        
-
-
-
-                        
-
-                        string dataContains = telnetSwitch.VirtualScreen.Hardcopy().Trim(); ;
-
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取到项目：\n" + dataContains);
-                        var lines = dataContains.Split('\n');
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "开始检查项目列表：共" + lines.Length + "项");
-                        lock (nowUsingItem)
-                        { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "开始检查项目列表：共" + lines.Length.ToString() + "项\n"; }
-                        bool isthisswitchhasdisable = false;
-                        //保存disable；
-                        string flushResult = "";
-                        foreach (var t in lines)
-                        {
-                            LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "检查项目_disable\n" + t + "查找" + whatTypeOfSwitch.ScreeningStringForDisableItem);
-                            if (t.ToLower().Contains(whatTypeOfSwitch.ScreeningStringForDisableItem.ToLower()))
-                            {
-                                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "检查项目_port\n" + t + "查找" + whatTypeOfSwitch.ScreeningStringForPortLine);
-                                if (t.ToLower().Contains(whatTypeOfSwitch.ScreeningStringForPortLine.ToLower()))
-                                {
-                                    //找到了disable的项
-                                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "DISABLE:" + t);
-                                    flushResult += t + "\n";
-                                    isthisswitchhasdisable = true;
-                                }
-                            }
-
-                        }
-                        lock (nowUsingItem)
-                        {
-                            nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "检查结束";
-                        }
-                        if (isthisswitchhasdisable)
-                        {
-                            //有disable
-                            //增加disable
-                            lock (nowUsingItem)
-                            {
-                                nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发现disable\n";
-                                nowUsingItem.FlushResult = flushResult;
-                            }
-                            lock (lockdisablehashset)
-                            {
-                                if (!hashset_switchs_disables.Contains(nowUsingItem))
-                                {
-                                    lock (nowUsingItem)
-                                    {
-                                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "增加到disable列表\n";
-                                    }
-                                    hashset_switchs_disables.Add(nowUsingItem);
-                                }
-                            }
-                        }
-                        else
-                        {
-                            //检查有无disable，有则消除
-                            lock (nowUsingItem)
-                            {
-                                nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "未发现disable\n";
-                            }
-                            lock (lockdisablehashset)
-                            {
-                                if (hashset_switchs_disables.Contains(nowUsingItem))
-                                {
-                                    lock (nowUsingItem)
-                                    {
-                                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "从disable列表去除\n";
-                                    }
-                                    hashset_switchs_disables.Remove(nowUsingItem);
-                                }
-                            }
-                        }
-
-                    }
-                    catch (Exception e)
-                    {
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
-                        lock (nowUsingItem)
-                        { nowUsingItem.FlushResult = "无Fa提示符"; }
-                        goto errorProcress;
-                    }
-
+                    LogInToEvent.WriteDebug("类型：" + whatTypeOfSwitch.ToString());
                 }
                 else
                 {
                     lock (nowUsingItem)
-                    { nowUsingItem.FlushResult = "无法连接到该交换机"; }
+                    {
+                        nowUsingItem.FlushResult = "错误的类型" + nowUsingItem.SwitchTypeNameBelongTo;
+                    }
                     goto errorProcress;
                 }
 
-                nowUsingItem.LastFlushTime = DateTime.Now;
-
-                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "成功，日志：\n" + telnetSwitch.GetHistory);
-                lock (nowUsingItem)
-                { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "成功\n"; }
-                //成功
-                lock (lockerrorhashset)
+                telnetSwitch.WaitForChangedScreen();
+                System.Threading.Thread.Sleep(1000);
+                //登录用户名
+                if (whatTypeOfSwitch.IsThisSwitchNeedsOfUserName)
                 {
-                    if (hashset_switchs_error.Contains(nowUsingItem))
-                    {
-                        hashset_switchs_error.Remove(nowUsingItem);
-                    }
-                }
-                if (nowProgressing == nowUsingItem.FlushResult)
-                {
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "要求登录用户名");
                     lock (nowUsingItem)
                     {
-                        nowUsingItem.FlushResult = "";
+                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "要求登录用户名\n";
+                    }
+                    try
+                    {
+                        telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForUserName);
+                    }
+                    catch (Exception e)
+                    {
+                        lock (nowUsingItem)
+                        {
+                            nowUsingItem.FlushResult = "没有要求登录用户名\n";
+                        }
+                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
+                        goto errorProcress;
+                    }
+
+                    telnetSwitch.SendResponse(nowUsingItem.UserName, true);
+                    telnetSwitch.WaitForChangedScreen();
+                    System.Threading.Thread.Sleep(1000);
+                }
+
+                //登录密码
+                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "要求登录密码");
+                lock (nowUsingItem)
+                {
+                    nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "要求登录密码\n";
+                }
+                try
+                {
+                    telnetSwitch.WaitForString
+                        (whatTypeOfSwitch.PromptForPassword);
+                }
+                catch (Exception e)
+                {
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
+                    lock (nowUsingItem)
+                    {
+                        nowUsingItem.FlushResult = "没有要求密码或密码请求字符串不正确";
+                    }
+                    goto errorProcress;
+                }
+                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送登录密码");
+                lock (nowUsingItem)
+                {
+                    nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送登录密码\n";
+                }
+                telnetSwitch.SendResponse(nowUsingItem.Password, true);
+                telnetSwitch.WaitForChangedScreen();
+                System.Threading.Thread.Sleep(1000);
+                lock (nowUsingItem)
+                {
+                    nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取得结果\n";
+                }
+
+                //确认登录密码正确性
+                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "确认登录密码正确性");
+                nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "确认登录密码正确性\n";
+                try
+                {
+                    telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForCommandBeforeEnable);
+                }
+                catch (Exception e)
+                {
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
+                    lock (nowUsingItem)
+                    {
+                        nowUsingItem.FlushResult = "登录密码错误";
+                    }
+                    goto errorProcress;
+                }
+
+                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送enable");
+                lock (nowUsingItem)
+                {
+                    nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送enable\n";
+                }
+                telnetSwitch.SendResponse("enable", true);
+                telnetSwitch.WaitForChangedScreen();
+                System.Threading.Thread.Sleep(1000);
+
+                //enable登录过程
+                if (whatTypeOfSwitch.IsThisSwitchNeedsOfEnableUserName)
+                {
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待要求enable用户名登录");
+                    nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待要求enable用户名登录\n";
+                    try
+                    {
+                        telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForEnableUserName);
+                    }
+                    catch (Exception e)
+                    {
+                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
+                        lock (nowUsingItem)
+                        {
+                            nowUsingItem.FlushResult = "没有提示输入enable用户名";
+                        }
+                        goto errorProcress;
+                    }
+                    lock (nowUsingItem)
+                    {
+                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送enable用户名\n";
+                    }
+                    telnetSwitch.SendResponse(nowUsingItem.EnableUsername, true);
+                    telnetSwitch.WaitForChangedScreen();
+                    System.Threading.Thread.Sleep(1000);
+                }
+
+
+                //enable密码
+                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待要求enable密码");
+                lock (nowUsingItem)
+                {
+                    nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待要求enable密码\n";
+                }
+                try
+                {
+                    telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForEnablePassword);
+                }
+                catch (Exception e)
+                {
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
+                    lock (nowUsingItem)
+                    { nowUsingItem.FlushResult = "没有提示输入enable密码/enable用户名错误？"; }
+                    goto errorProcress;
+                }
+                lock (nowUsingItem)
+                { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送enable密码\n"; }
+                if (!telnetSwitch.SendResponse(nowUsingItem.EnablePassword, true))
+                {
+                    lock (nowUsingItem)
+                    { nowUsingItem.FlushResult = "错误：发送enable密码失败"; }
+                    goto errorProcress;
+                }
+                //telnetSwitch.Send("\r\n"); telnetSwitch.Send("\r\n"); telnetSwitch.Send("\r\n");
+                if (!telnetSwitch.WaitForChangedScreen())
+                {
+                    lock (nowUsingItem)
+                    { nowUsingItem.FlushResult = "错误：WaitForChangedScreen返回false"; }
+                    goto errorProcress;
+                }
+                //System.Threading.Thread.Sleep(1000);
+
+                //enable 成功？
+                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "确认enable成功");
+
+                lock (nowUsingItem)
+                { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "确认enable成功\n"; }
+                try
+                {
+                    if (telnetSwitch.WaitForString(whatTypeOfSwitch.PromptForCommandAfterEnable) == null)
+                    {
+                        
+                        lock (nowUsingItem)
+                        { nowUsingItem.FlushResult = "错误：在试图确认命令成功时发生错误。请确认enable密码。WaitForString返回了NULL"; }
+                        goto errorProcress;
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
+                    lock (nowUsingItem)
+                    { nowUsingItem.FlushResult = "没有提示enable提示符，enable 密码错误？"; }
+                    goto errorProcress;
+                }
+
+                //发送查询状态信息
+                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令" + whatTypeOfSwitch.CommandForFindStatus);
+                lock (nowUsingItem)
+                { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令\n"; }
+
+
+                //清除屏幕，因为之前已经有enable态的提示符了。
+
+                telnetSwitch.VirtualScreen.CleanScreen();
+
+
+
+
+                telnetSwitch.SendResponse(whatTypeOfSwitch.CommandForFindStatus, true);
+
+                telnetSwitch.WaitForChangedScreen();
+                lock (nowUsingItem)
+                { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令完成\n"; }
+
+                System.Threading.Thread.Sleep(1000);
+                lock (nowUsingItem)
+                { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令完成+1s\n"; }
+                try
+                {
+                    //筛选项目
+                    //若没有commandline，则不断发送空格，直到有为止
+                    /*string dataContains = telnetSwitch.WorkingData;
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取到ORA1项目：\n" + dataContains);
+                    while (!dataContains.ToLower().Contains(whatTypeOfSwitch.PromptForCommandAfterEnable.ToLower()))
+                    {
+                        telnetSwitch.Send(" ");
+                        System.Threading.Thread.Sleep(5000);//等待5s
+                        dataContains += telnetSwitch.WorkingData;
+                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取到ORA2项目：\n" + dataContains);
+                    }*/
+
+
+
+
+                    /* telnetSwitch.SendResponse(" ",true);
+                     LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待命令行，发送空格1\n");
+                     nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送空格\n";
+                     telnetSwitch.WaitForChangedScreen();
+                     System.Threading.Thread.Sleep(1000);
+                     nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送空格+2s\n";
+                     string wegets = telnetSwitch.GetHistory.Replace(beforeSendSearchCommand, "");
+
+                     while (!wegets.Trim().ToLower().Contains(whatTypeOfSwitch.PromptForCommandAfterEnable.ToLower()))
+                     {
+                         //一直到命令行出来为止
+                         nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待命令行："+wegets+"\n";
+                         LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待命令行，发送空格：" + wegets + "\n");
+                         telnetSwitch.SendResponse(" ", true);
+                         telnetSwitch.WaitForChangedScreen();
+                         System.Threading.Thread.Sleep(1000);
+                        
+                     }*/
+
+
+
+
+
+
+
+
+                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    //ora:telnetSwitch.SendResponse(" \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n", true);
+                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    //大量交换机显示==more==信息，因此需要等待命令行
+                    //added @ 2012 05 20 by sc
+
+                    for (int counter = 0; counter < 20; ++counter)
+                    {
+                        telnetSwitch.SendResponse(" ", false);
+                    }
+
+                    ///最大尝试次数
+                    const int MAXIMUM_TRY_COUNT = 20;
+
+                    for (int currectTry = 0; currectTry <= MAXIMUM_TRY_COUNT; ++currectTry)
+                    {
+                        telnetSwitch.WaitForChangedScreen();
+                        //若是屏幕上没有出现命令提示符
+                        if (telnetSwitch.VirtualScreen.FindOnScreen(whatTypeOfSwitch.PromptForCommandAfterEnable, false) != null)
+                        {
+                            break;
+                        }
+
+                        if (currectTry == MAXIMUM_TRY_COUNT)
+                        {
+                            //到达最大重试门限
+                            lock (nowUsingItem)
+                            {
+                                nowUsingItem.LastFlushLog += "\n到达取得数据最大门限\n";
+                            }
+                        }
+                        else
+                        {
+
+                            //发送空格以及两个回车
+                            telnetSwitch.SendResponse(" ", true);
+                        }
+
+                    }
+
+
+
+                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+                    string dataContains = telnetSwitch.VirtualScreen.Hardcopy().Trim(); ;
+
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取到项目：\n" + dataContains);
+                    var lines = dataContains.Split('\n');
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "开始检查项目列表：共" + lines.Length + "项");
+                    lock (nowUsingItem)
+                    { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "开始检查项目列表：共" + lines.Length.ToString() + "项\n"; }
+                    bool isthisswitchhasdisable = false;
+                    //保存disable；
+                    string flushResult = "";
+                    foreach (var t in lines)
+                    {
+                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "检查项目_disable\n" + t + "查找" + whatTypeOfSwitch.ScreeningStringForDisableItem);
+                        if (t.ToLower().Contains(whatTypeOfSwitch.ScreeningStringForDisableItem.ToLower()))
+                        {
+                            LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "检查项目_port\n" + t + "查找" + whatTypeOfSwitch.ScreeningStringForPortLine);
+                            if (t.ToLower().Contains(whatTypeOfSwitch.ScreeningStringForPortLine.ToLower()))
+                            {
+                                //找到了disable的项
+                                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "DISABLE:" + t);
+                                flushResult += t + "\n";
+                                isthisswitchhasdisable = true;
+                            }
+                        }
+
+                    }
+                    lock (nowUsingItem)
+                    {
+                        nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "检查结束";
+                    }
+                    if (isthisswitchhasdisable)
+                    {
+                        //有disable
+                        //增加disable
+                        lock (nowUsingItem)
+                        {
+                            nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发现disable\n";
+                            nowUsingItem.FlushResult = flushResult;
+                        }
+                        lock (lockdisablehashset)
+                        {
+                            if (!hashset_switchs_disables.Contains(nowUsingItem))
+                            {
+                                lock (nowUsingItem)
+                                {
+                                    nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "增加到disable列表\n";
+                                }
+                                hashset_switchs_disables.Add(nowUsingItem);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        //检查有无disable，有则消除
+                        lock (nowUsingItem)
+                        {
+                            nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "未发现disable\n";
+                        }
+                        lock (lockdisablehashset)
+                        {
+                            if (hashset_switchs_disables.Contains(nowUsingItem))
+                            {
+                                lock (nowUsingItem)
+                                {
+                                    nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "从disable列表去除\n";
+                                }
+                                hashset_switchs_disables.Remove(nowUsingItem);
+                            }
+                        }
                     }
 
                 }
+                catch (Exception e)
+                {
+                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + e.ToString());
+                    lock (nowUsingItem)
+                    { nowUsingItem.FlushResult = "无Fa提示符"; }
+                    goto errorProcress;
+                }
 
-                
+            }
+            else
+            {
+                lock (nowUsingItem)
+                { nowUsingItem.FlushResult = "无法连接到该交换机"; }
+                goto errorProcress;
+            }
+
+            nowUsingItem.LastFlushTime = DateTime.Now;
+
+            LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "成功，日志：\n" + telnetSwitch.GetHistory);
+            lock (nowUsingItem)
+            { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "成功\n"; }
+            //成功
+            lock (lockerrorhashset)
+            {
+                if (hashset_switchs_error.Contains(nowUsingItem))
+                {
+                    hashset_switchs_error.Remove(nowUsingItem);
+                }
+            }
+            if (nowProgressing == nowUsingItem.FlushResult)
+            {
                 lock (nowUsingItem)
                 {
-                    nowUsingItem.LastFlushLog += "\n\n SESSIONLOG:\n\n" + telnetSwitch.GetHistory;
+                    nowUsingItem.FlushResult = "";
                 }
 
-                if (telnetSwitch.IsOpenConnection())
-                {
-                    telnetSwitch.SendLogout();
-                    telnetSwitch.Close();
-                }
-                return;
+            }
 
 
-            errorProcress:
-                //失败
+            lock (nowUsingItem)
+            {
+                nowUsingItem.LastFlushLog += "\n\n SESSIONLOG:\n\n" + telnetSwitch.GetHistory;
+            }
+
+            if (telnetSwitch.IsOpenConnection())
+            {
+                telnetSwitch.SendLogout();
+                telnetSwitch.Close();
+            }
+            return;
+
+
+        errorProcress:
+            //失败
             //todo:hardcopy可能为空，需要被注意
-                LogInToEvent.WriteInfo(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + nowUsingItem.FlushResult + telnetSwitch.VirtualScreen.Hardcopy().Trim());
-                LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "失败，日志：\n" + telnetSwitch.GetHistory);
+            string infomationToWriteInfo = nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + nowUsingItem.FlushResult;
+            if (telnetSwitch.VirtualScreen != null)
+            {
+                infomationToWriteInfo += telnetSwitch.VirtualScreen.Hardcopy().Trim();
+            }
+            else
+            {
+                infomationToWriteInfo += "=====NULL=====";
+            }
+            LogInToEvent.WriteInfo(infomationToWriteInfo);
+            LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "失败，日志：\n" + telnetSwitch.GetHistory);
 
-                lock (lockdisablehashset)
+            lock (lockdisablehashset)
+            {
+                if (hashset_switchs_disables.Contains(nowUsingItem))
                 {
-                    if (hashset_switchs_disables.Contains(nowUsingItem))
-                    {
-                        //错误的时候消除disable
-                        hashset_switchs_disables.Remove(nowUsingItem);
-                    }
+                    //错误的时候消除disable
+                    hashset_switchs_disables.Remove(nowUsingItem);
                 }
-                lock (lockerrorhashset)
+            }
+            lock (lockerrorhashset)
+            {
+                if (!hashset_switchs_error.Contains(nowUsingItem))
                 {
-                    if (!hashset_switchs_error.Contains(nowUsingItem))
-                    {
-                        hashset_switchs_error.Add(nowUsingItem);
-                    }
+                    hashset_switchs_error.Add(nowUsingItem);
                 }
-                lock (nowUsingItem)
-                {
-                    nowUsingItem.LastFlushLog = telnetSwitch.GetHistory;
-                }
-                nowUsingItem.LastFlushTime = DateTime.Now;
+            }
+            lock (nowUsingItem)
+            {
+                nowUsingItem.LastFlushLog = telnetSwitch.GetHistory;
+            }
+            nowUsingItem.LastFlushTime = DateTime.Now;
 
-                if (telnetSwitch.IsOpenConnection())
-                {
-                    telnetSwitch.SendLogout();
-                    telnetSwitch.Close();
-                }
-            
+            if (telnetSwitch.IsOpenConnection())
+            {
+                telnetSwitch.SendLogout();
+                telnetSwitch.Close();
+            }
+
         }
 
 

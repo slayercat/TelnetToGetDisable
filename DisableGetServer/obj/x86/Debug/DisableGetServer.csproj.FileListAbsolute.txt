@@ -26,3 +26,14 @@ F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInform
 F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\DisableGetServer.ProjectInstaller.resources
 F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\GenerateResource.read.1.tlog
 F:\文档\Documents\Visual Studio 2010\Projects\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\GenerateResource.write.1.tlog
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\OUTPUT_DIR\DisableGetServer.exe.config
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\DisableGetServer.exe
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\DisableGetServer.pdb
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\OUTPUT_DIR\DisableGetServer.exe
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\OUTPUT_DIR\DisableGetServer.pdb
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\DisableGetServer.csprojResolveAssemblyReference.cache
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\DisableGetServer.DEBUG.resources
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\DisableGetServer.DEBUG_LIST.resources
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\DisableGetServer.GetSwitchDisableStatus.resources
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\DisableGetServer.ProjectInstaller.resources
+E:\文档\Documents\Visual Studio 2012\旧的project\Projects2010\网络信息中心\NetworkInformationCenter\TelnetToGetDisable\DisableGetServer\obj\x86\Debug\DisableGetServer.csproj.GenerateResource.Cache
