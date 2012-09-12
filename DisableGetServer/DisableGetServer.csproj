@@ -87,6 +87,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Scan_FlushSwitchAndScanForResult.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="DEBUG.cs">
       <SubType>Form</SubType>
     </Compile>
