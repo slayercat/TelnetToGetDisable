@@ -5,4 +5,5 @@
 /DisableGetServer/obj/
 /DisableGetConfig/bin/
 /DisableGetConfig/obj/
-
+*.suo
+/*.sln
