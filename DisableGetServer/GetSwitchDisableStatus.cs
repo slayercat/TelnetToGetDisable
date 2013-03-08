@@ -76,7 +76,7 @@ namespace DisableGetServer
             {
                 listener.Start();
             }
-            catch (System.Net.Sockets.SocketException e)
+            catch (System.Net.Sockets.SocketException)
             {
                 //已经被占用
                 LogInToEvent.WriteError("端口" + PORT.ToString() + "已经被占用");

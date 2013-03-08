@@ -411,7 +411,7 @@ namespace DisableGetServer
                             { nowUsingItem.FlushResult = "发送请求命令行参数的请求中，连接断开"; }
                             goto errorProcress;
                         }
-                        catch (Exception e)
+                        catch (Exception)
                         {
                             lock (nowUsingItem)
                             { nowUsingItem.FlushResult = "发送请求命令行参数的请求失败"; }
