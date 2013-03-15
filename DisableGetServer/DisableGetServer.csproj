@@ -88,6 +88,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationStatics.cs" />
+    <Compile Include="Datastructs\Commands\SearchForDisableNonImmuable.cs" />
     <Compile Include="Datastructs\PriorityQueue.cs" />
     <Compile Include="Datastructs\Commands\ICommand.cs" />
     <Compile Include="Datastructs\Commands\SearchForDisable.cs" />

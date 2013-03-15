@@ -25,7 +25,7 @@ namespace DisableGetServer.Datastructs.Commands
             get { return "查找交换机Disable端口"; }
         }
 
-        bool ICommand.IsImmuable
+        public virtual bool IsImmuable
         {
             get { return true; }
         }
@@ -706,7 +706,7 @@ namespace DisableGetServer.Datastructs.Commands
         }
 
 
-        bool ICommand.IfNeedExecution
+        public virtual bool IfNeedExecution
         {
             get { return (DateTime.Now - nowUsingItem.LastFlushTime).TotalMinutes > ApplicationStatics.Settings.FlushTime; }
         }

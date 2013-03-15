@@ -49,9 +49,9 @@ namespace DisableGetServer
         /// </summary>
         System.Threading.Thread itemThredOfWaitWeb = null;
 
-        
 
-        
+
+
 
 
         /// <summary>
@@ -63,6 +63,11 @@ namespace DisableGetServer
         /// 默认的低优先级队列的优先级
         /// </summary>
         const int DEFAULT_LOW_PRI = 10000;
+
+        /// <summary>
+        /// 默认的高优先级队列的优先级
+        /// </summary>
+        const int DEFAULT_HIGH_PRI = 10;
 
         /// <summary>
         /// 用于等待web访问，web访问线程的执行方
@@ -256,6 +261,7 @@ namespace DisableGetServer
 
                     lock (lockServQueue)
                     {
+                        contentbuilder.AppendLine("<p><a href=\"/REFLUSH/ALL" + "\"> 刷新 </a></p>");
                         contentbuilder.AppendLine("<table>");
                         foreach (var t in servList)
                         {
@@ -291,6 +297,7 @@ namespace DisableGetServer
                     contains = System.Web.HttpUtility.UrlDecode(contains, System.Text.Encoding.UTF8);
                     contentbuilder.AppendLine("Contains=" + contains);
                     contentbuilder.AppendLine("</h1>");
+                    contentbuilder.AppendLine("<p><a href=\"/REFLUSH/" + contains + "\"> 刷新 </a></p>");
                     var resultSearched = Helper.GetSwitchByName(servList, contains);
 
                     contentbuilder.AppendLine("<table>");
@@ -334,6 +341,42 @@ namespace DisableGetServer
                         }
                     }
 
+                }
+                else if (location.ToUpper().StartsWith("/REFLUSH/"))
+                {
+                    if (location.ToUpper().StartsWith("/REFLUSH/ALL"))
+                    {
+                        lock (lockServQueue)
+                        {
+                            foreach (var t in servList)
+                            {
+                                lock (t)
+                                {
+                                    // 优先处理
+                                    servQueue.Enqueue(new Datastructs.Commands.SearchForDisableNonImmuable(t), DEFAULT_HIGH_PRI);
+                                }
+                            }
+                        }
+                        contentbuilder.AppendLine("已经提交处理，请<a href=\"/\">返回</a>");
+                    }
+                    else
+                    {
+                        string contains = location.Split(new string[] { "/REFLUSH/" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                        contains = System.Web.HttpUtility.UrlDecode(contains, System.Text.Encoding.UTF8);
+                        var resultSearched = Helper.GetSwitchByName(servList, contains);
+                        lock (lockServQueue)
+                        {
+                            foreach (var t in resultSearched)
+                            {
+                                lock (t)
+                                {
+                                    // 优先处理
+                                    servQueue.Enqueue(new Datastructs.Commands.SearchForDisableNonImmuable(t), DEFAULT_HIGH_PRI);
+                                }
+                            }
+                        }
+                        contentbuilder.AppendLine("已经提交处理，请<a href=\"/\">返回</a>");
+                    }
                 }
                 else
                 {
@@ -419,7 +462,7 @@ namespace DisableGetServer
                     // 约定为DEFAULT_LOW_PRI ，普通的为低优先级
                     servQueue.Enqueue(new Datastructs.Commands.SearchForDisable(t), DEFAULT_LOW_PRI);
                 }
-                
+
             }
 
             LogInToEvent.WriteDebug("列出待服务队列完成，共" + servList.Count + "项");
@@ -499,9 +542,12 @@ namespace DisableGetServer
                         {
                             System.Threading.Thread.Sleep(1000);
                         }
-                        lock (lockServQueue)
+                        if (nowUsingItem.IsImmuable)
                         {
-                            servQueue.Enqueue(nowUsingItem, DEFAULT_LOW_PRI);
+                            lock (lockServQueue)
+                            {
+                                servQueue.Enqueue(nowUsingItem, DEFAULT_LOW_PRI);
+                            }
                         }
                         lock (lockservItem)
                         {
