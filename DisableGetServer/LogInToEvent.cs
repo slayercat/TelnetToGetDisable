@@ -15,8 +15,17 @@ namespace DisableGetServer
         public static event WriteToLog OnWrite;
 
 
+        private static string strickStr(string stext)
+        {
+            const int i = 32760;
+            if (stext.Length > i)
+                stext = stext.Substring(0, i);
+            return stext;
+        }
+
         public static void WriteError(string sText)
         {
+            sText = strickStr(sText);
             if (!EventLog.SourceExists(sEventSource))
                 EventLog.CreateEventSource(sEventSource, sEventLog);
             
@@ -30,7 +39,7 @@ namespace DisableGetServer
 
         public static void WriteInfo(string sText)
         {
-            
+            sText = strickStr(sText);
             if (!EventLog.SourceExists(sEventSource))
                 EventLog.CreateEventSource(sEventSource, sEventLog);
             EventLog.WriteEntry(sEventSource, sText, EventLogEntryType.Information);
@@ -43,8 +52,8 @@ namespace DisableGetServer
 
         public static void WriteDebug(string sText)
         {
-            
 
+            sText = strickStr(sText);
             if (OnWrite != null)
             {
                 OnWrite(sText);

@@ -11,11 +11,30 @@ namespace DisableGetServer
 
         static ApplicationStatics()
         {
-            readFromConfigureFile();
+            lock (typeof(ApplicationStatics))
+            {
+                readFromConfigureFile();
+            }
         }
 
 
-        public static DisableGetObjects.ApplicationSettings Settings { get { return setting; } }
+        public static DisableGetObjects.ApplicationSettings Settings 
+        { 
+            get 
+            {
+                if (setting == null) 
+                {
+                    lock (typeof(ApplicationStatics))
+                    {
+                        if (setting == null)
+                        {
+                            readFromConfigureFile();
+                        }
+                    }
+                }
+                return setting; 
+            } 
+        }
 
 
         /// <summary>

@@ -18,12 +18,15 @@ namespace DisableGetServer
         public GetSwitchDisableStatus()
         {
             InitializeComponent();
+
+            settings = new DisableGetObjects.ApplicationSettings();
+            settings.ReadFromConfigureFile();
         }
 
         /// <summary>
         /// 当前程序的设置
         /// </summary>
-        DisableGetObjects.ApplicationSettings settings = ApplicationStatics.Settings;
+        DisableGetObjects.ApplicationSettings settings;
 
         /// <summary>
         /// 用于在交换机类型的List和Array间相互转换。
@@ -262,6 +265,7 @@ namespace DisableGetServer
                     lock (lockServQueue)
                     {
                         contentbuilder.AppendLine("<p><a href=\"/REFLUSH/ALL" + "\"> 刷新 </a></p>");
+                        contentbuilder.AppendLine("<p><a href=\"/RECOVERY/ALL"  + "\"> 恢复全部 </a></p>");
                         contentbuilder.AppendLine("<table>");
                         foreach (var t in servList)
                         {
@@ -298,6 +302,7 @@ namespace DisableGetServer
                     contentbuilder.AppendLine("Contains=" + contains);
                     contentbuilder.AppendLine("</h1>");
                     contentbuilder.AppendLine("<p><a href=\"/REFLUSH/" + contains + "\"> 刷新 </a></p>");
+                    contentbuilder.AppendLine("<p><a href=\"/RECOVERY/" + contains + "\"> 恢复 </a></p>");
                     var resultSearched = Helper.GetSwitchByName(servList, contains);
 
                     contentbuilder.AppendLine("<table>");
@@ -357,7 +362,7 @@ namespace DisableGetServer
                                 }
                             }
                         }
-                        contentbuilder.AppendLine("已经提交处理，请<a href=\"/\">返回</a>");
+                        contentbuilder.AppendLine("\r\n已经提交处理，请<a href=\"/\">返回</a>");
                     }
                     else
                     {
@@ -375,7 +380,43 @@ namespace DisableGetServer
                                 }
                             }
                         }
-                        contentbuilder.AppendLine("已经提交处理，请<a href=\"/\">返回</a>");
+                        contentbuilder.AppendLine("\r\n已经提交处理，请<a href=\"/\">返回</a>");
+                    }
+                }
+                else if (location.ToUpper().StartsWith("/RECOVERY/"))
+                {
+                    if (location.ToUpper().StartsWith("/RECOVERY/ALL"))
+                    {
+                        lock (lockServQueue)
+                        {
+                            foreach (var t in servList)
+                            {
+                                lock (t)
+                                {
+                                    // 优先处理
+                                    servQueue.Enqueue(new Datastructs.Commands.RecoveryFromDisable(t), DEFAULT_HIGH_PRI);
+                                }
+                            }
+                        }
+                        contentbuilder.AppendLine("\r\n已经提交处理，请<a href=\"/\">返回</a>，稍候再刷新该交换机");
+                    }
+                    else
+                    {
+                        string contains = location.Split(new string[] { "/RECOVERY/" }, StringSplitOptions.RemoveEmptyEntries)[0];
+                        contains = System.Web.HttpUtility.UrlDecode(contains, System.Text.Encoding.UTF8);
+                        var resultSearched = Helper.GetSwitchByName(servList, contains);
+                        lock (lockServQueue)
+                        {
+                            foreach (var t in resultSearched)
+                            {
+                                lock (t)
+                                {
+                                    // 优先处理
+                                    servQueue.Enqueue(new Datastructs.Commands.RecoveryFromDisable(t), DEFAULT_HIGH_PRI);
+                                }
+                            }
+                        }
+                        contentbuilder.AppendLine("\r\n已经提交处理，请<a href=\"/\">返回</a>，稍候再刷新该交换机");
                     }
                 }
                 else
