@@ -14,7 +14,63 @@ namespace DisableGetServer
             readFromConfigureFile();
         }
 
+
         public static DisableGetObjects.ApplicationSettings Settings { get { return setting; } }
+
+
+        /// <summary>
+        /// 有被disable的端口的交换机
+        /// </summary>
+        static HashSet<DisableGetObjects.Setting_Type_Switch> hashset_switchs_disables = new HashSet<DisableGetObjects.Setting_Type_Switch>();
+
+        /// <summary>
+        /// 有被disable的端口的交换机, 进入前必须先获取锁。SwitchsDisables_EnterLock进入，SwitchsDisables_ExitLock退出
+        /// </summary>
+        public static HashSet<DisableGetObjects.Setting_Type_Switch> SwitchsDisables { get { return hashset_switchs_disables; } }
+
+        private static System.Threading.SpinLock hashset_switchs_disables_lock = new System.Threading.SpinLock();
+        /// <summary>
+        /// 为SwitchsDisables加锁
+        /// </summary>
+        public static void SwitchsDisables_EnterLock() 
+        {
+            bool e = false;
+            hashset_switchs_disables_lock.Enter(ref e); 
+        }
+        /// <summary>
+        /// 退出SwitchsDisables的锁
+        /// </summary>
+        public static void SwitchsDisables_ExitLock()
+        {
+            hashset_switchs_disables_lock.Exit();
+        }
+
+        /// <summary>
+        /// 扫描过程中出错的交换机
+        /// </summary>
+        static System.Collections.Generic.HashSet<DisableGetObjects.Setting_Type_Switch> hashset_switchs_error = new HashSet<DisableGetObjects.Setting_Type_Switch>();
+        /// <summary>
+        /// 扫描过程中出错的交换机，进入前必须先获取锁。SwitchsErrors_EnterLock进入，SwitchsErrorss_ExitLock退出
+        /// </summary>
+        public static HashSet<DisableGetObjects.Setting_Type_Switch> SwitchsErrors { get { return hashset_switchs_error; } }
+
+        private static System.Threading.SpinLock hashset_switchs_error_lock = new System.Threading.SpinLock();
+        /// <summary>
+        /// 为SwitchsErrors加锁
+        /// </summary>
+        public static void SwitchsErrors_EnterLock()
+        {
+            bool e = false;
+            hashset_switchs_error_lock.Enter(ref e);
+        }
+        /// <summary>
+        /// 退出SwitchsErrors的锁
+        /// </summary>
+        public static void SwitchsErrors_ExitLock()
+        {
+            hashset_switchs_error_lock.Exit();
+        }
+
 
         private static void readFromConfigureFile()
         {

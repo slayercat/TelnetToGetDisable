@@ -49,15 +49,9 @@ namespace DisableGetServer
         /// </summary>
         System.Threading.Thread itemThredOfWaitWeb = null;
 
-        /// <summary>
-        /// 扫描过程中出错的交换机
-        /// </summary>
-        System.Collections.Generic.HashSet<DisableGetObjects.Setting_Type_Switch> hashset_switchs_error = new HashSet<DisableGetObjects.Setting_Type_Switch>();
+        
 
-        /// <summary>
-        /// 有被disable的端口的交换机
-        /// </summary>
-        System.Collections.Generic.HashSet<DisableGetObjects.Setting_Type_Switch> hashset_switchs_disables = new HashSet<DisableGetObjects.Setting_Type_Switch>();
+        
 
 
         /// <summary>
@@ -201,10 +195,10 @@ namespace DisableGetServer
                     contentbuilder.AppendLine("<hr/>");
                     //输出disable和错误项
                     contentbuilder.AppendLine("<h1>DISABLE</h1>");
-                    lock (lockdisablehashset)
+                    ApplicationStatics.SwitchsDisables_EnterLock();
                     {
                         contentbuilder.AppendLine("<table>");
-                        foreach (var t in hashset_switchs_disables)
+                        foreach (var t in ApplicationStatics.SwitchsDisables)
                         {
                             lock (t)
                             {
@@ -226,13 +220,14 @@ namespace DisableGetServer
                         }
                         contentbuilder.AppendLine("</table>");
                     }
+                    ApplicationStatics.SwitchsDisables_ExitLock();
                     contentbuilder.AppendLine("<hr/>");
                     contentbuilder.AppendLine("<h1>Error</h1>");
 
-                    lock (lockerrorhashset)
+                    ApplicationStatics.SwitchsErrors_EnterLock();
                     {
                         contentbuilder.AppendLine("<table>");
-                        foreach (var t in hashset_switchs_error)
+                        foreach (var t in ApplicationStatics.SwitchsErrors)
                         {
                             lock (t)
                             {
@@ -254,6 +249,7 @@ namespace DisableGetServer
                         }
                         contentbuilder.AppendLine("</table>");
                     }
+                    ApplicationStatics.SwitchsErrors_ExitLock();
                 }
                 else if (location.ToUpper().StartsWith("/ALLITEMS/"))
                 {
@@ -387,14 +383,7 @@ namespace DisableGetServer
         /// 交换机队列锁
         /// </summary>
         private object lockServQueue = 1;
-        /// <summary>
-        /// disable交换机列表锁
-        /// </summary>
-        private object lockdisablehashset = 1;
-        /// <summary>
-        /// 错误列表锁
-        /// </summary>
-        private object lockerrorhashset = 1;
+
         /// <summary>
         /// servItem锁，锁定当前正在扫描的项
         /// </summary>
@@ -428,7 +417,7 @@ namespace DisableGetServer
                 foreach (var t in servList)
                 {
                     // 约定为DEFAULT_LOW_PRI ，普通的为低优先级
-                    servQueue.Enqueue(new Datastructs.Commands.SearchForDisable(t, new Datastructs.Commands.SearchForDisable.DelegateCommand(Scan_FlushSwitchAndScanForResult)), DEFAULT_LOW_PRI);
+                    servQueue.Enqueue(new Datastructs.Commands.SearchForDisable(t), DEFAULT_LOW_PRI);
                 }
                 
             }
