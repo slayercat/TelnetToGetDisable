@@ -59,7 +59,16 @@ namespace DisableGetConfig
             this.label2 = new System.Windows.Forms.Label();
             this.tb_TypeName = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.cb_SupportDisableRecovery = new System.Windows.Forms.CheckBox();
+            this.tb_CommandGetIntoConfigMode = new System.Windows.Forms.TextBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.tb_RecoveryCommand = new System.Windows.Forms.TextBox();
+            this.label12 = new System.Windows.Forms.Label();
+            this.label13 = new System.Windows.Forms.Label();
+            this.tb_EndRecoveryCommand = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
+            this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
             // listBox1
@@ -68,7 +77,7 @@ namespace DisableGetConfig
             this.listBox1.ItemHeight = 12;
             this.listBox1.Location = new System.Drawing.Point(12, 12);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(202, 448);
+            this.listBox1.Size = new System.Drawing.Size(202, 580);
             this.listBox1.TabIndex = 0;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -104,6 +113,7 @@ namespace DisableGetConfig
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.groupBox2);
             this.groupBox1.Controls.Add(this.tb_disableStr);
             this.groupBox1.Controls.Add(this.label10);
             this.groupBox1.Controls.Add(this.tb_PortStr);
@@ -128,7 +138,7 @@ namespace DisableGetConfig
             this.groupBox1.Controls.Add(this.label1);
             this.groupBox1.Location = new System.Drawing.Point(247, 41);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(470, 419);
+            this.groupBox1.Size = new System.Drawing.Size(470, 551);
             this.groupBox1.TabIndex = 4;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "交换机类型信息";
@@ -322,11 +332,91 @@ namespace DisableGetConfig
             this.label1.TabIndex = 0;
             this.label1.Text = "类型名称";
             // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.tb_EndRecoveryCommand);
+            this.groupBox2.Controls.Add(this.label13);
+            this.groupBox2.Controls.Add(this.tb_RecoveryCommand);
+            this.groupBox2.Controls.Add(this.label12);
+            this.groupBox2.Controls.Add(this.tb_CommandGetIntoConfigMode);
+            this.groupBox2.Controls.Add(this.label11);
+            this.groupBox2.Controls.Add(this.cb_SupportDisableRecovery);
+            this.groupBox2.Location = new System.Drawing.Point(31, 352);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(409, 182);
+            this.groupBox2.TabIndex = 28;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Disable恢复";
+            // 
+            // cb_SupportDisableRecovery
+            // 
+            this.cb_SupportDisableRecovery.AutoSize = true;
+            this.cb_SupportDisableRecovery.Checked = true;
+            this.cb_SupportDisableRecovery.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.cb_SupportDisableRecovery.Location = new System.Drawing.Point(78, 20);
+            this.cb_SupportDisableRecovery.Name = "cb_SupportDisableRecovery";
+            this.cb_SupportDisableRecovery.Size = new System.Drawing.Size(150, 16);
+            this.cb_SupportDisableRecovery.TabIndex = 15;
+            this.cb_SupportDisableRecovery.Text = "交换机支持Disable恢复";
+            this.cb_SupportDisableRecovery.UseVisualStyleBackColor = true;
+            this.cb_SupportDisableRecovery.CheckedChanged += new System.EventHandler(this.cb_SupportDisableRecovery_CheckedChanged);
+            // 
+            // tb_CommandGetIntoConfigMode
+            // 
+            this.tb_CommandGetIntoConfigMode.Location = new System.Drawing.Point(135, 42);
+            this.tb_CommandGetIntoConfigMode.Name = "tb_CommandGetIntoConfigMode";
+            this.tb_CommandGetIntoConfigMode.Size = new System.Drawing.Size(238, 21);
+            this.tb_CommandGetIntoConfigMode.TabIndex = 30;
+            this.tb_CommandGetIntoConfigMode.Text = "config terminal";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(17, 48);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(101, 12);
+            this.label11.TabIndex = 29;
+            this.label11.Text = "进入配置模式指令";
+            // 
+            // tb_RecoveryCommand
+            // 
+            this.tb_RecoveryCommand.Location = new System.Drawing.Point(135, 81);
+            this.tb_RecoveryCommand.Name = "tb_RecoveryCommand";
+            this.tb_RecoveryCommand.Size = new System.Drawing.Size(238, 21);
+            this.tb_RecoveryCommand.TabIndex = 32;
+            this.tb_RecoveryCommand.Text = "errdisable recovery";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(65, 84);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(53, 12);
+            this.label12.TabIndex = 31;
+            this.label12.Text = "恢复指令";
+            // 
+            // label13
+            // 
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(28, 122);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(101, 12);
+            this.label13.TabIndex = 33;
+            this.label13.Text = "退出配置模式指令";
+            // 
+            // tb_EndRecoveryCommand
+            // 
+            this.tb_EndRecoveryCommand.Location = new System.Drawing.Point(135, 119);
+            this.tb_EndRecoveryCommand.Name = "tb_EndRecoveryCommand";
+            this.tb_EndRecoveryCommand.Size = new System.Drawing.Size(238, 21);
+            this.tb_EndRecoveryCommand.TabIndex = 34;
+            this.tb_EndRecoveryCommand.Text = "end";
+            // 
             // ConfigForSwitchType
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(773, 483);
+            this.ClientSize = new System.Drawing.Size(773, 610);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btn_delete);
             this.Controls.Add(this.btn_modify);
@@ -337,6 +427,8 @@ namespace DisableGetConfig
             this.Load += new System.EventHandler(this.ConfigForSwitchType_Load);
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -370,5 +462,13 @@ namespace DisableGetConfig
         private System.Windows.Forms.Label label8;
         private System.Windows.Forms.TextBox tb_disableStr;
         private System.Windows.Forms.Label label10;
+        private System.Windows.Forms.GroupBox groupBox2;
+        private System.Windows.Forms.TextBox tb_EndRecoveryCommand;
+        private System.Windows.Forms.Label label13;
+        private System.Windows.Forms.TextBox tb_RecoveryCommand;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.TextBox tb_CommandGetIntoConfigMode;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.CheckBox cb_SupportDisableRecovery;
     }
 }

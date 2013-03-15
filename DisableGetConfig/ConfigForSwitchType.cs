@@ -37,6 +37,11 @@ namespace DisableGetConfig
 
             this.cb_NeeduserName.Checked = false;
             this.cb_EnableNeedusername.Checked = false;
+
+            this.cb_SupportDisableRecovery.Checked = true;
+            this.tb_CommandGetIntoConfigMode.Text = "config terminal";
+            this.tb_RecoveryCommand.Text = "errdisable recovery";
+            this.tb_EndRecoveryCommand.Text = "end";
         }
         void flushItem()
         {
@@ -58,6 +63,11 @@ namespace DisableGetConfig
 
                 cb_NeeduserName.Checked=data.IsThisSwitchNeedsOfUserName;
                 cb_EnableNeedusername.Checked = data.IsThisSwitchNeedsOfEnableUserName;
+
+                this.cb_SupportDisableRecovery.Checked = data.IsSwitchSupportDisableRecovering;
+                this.tb_CommandGetIntoConfigMode.Text = data.SwitchCommandForConfigMode;
+                this.tb_RecoveryCommand.Text = data.SwitchCommandForRecoving;
+                this.tb_EndRecoveryCommand.Text = data.SwitchCommandForEndConfig;
             }
         }
 
@@ -94,7 +104,14 @@ namespace DisableGetConfig
                     CommandForFindStatus = tb_findPort.Text.Trim(),
 
                     IsThisSwitchNeedsOfUserName = cb_NeeduserName.Checked,
-                    IsThisSwitchNeedsOfEnableUserName = cb_EnableNeedusername.Checked
+                    IsThisSwitchNeedsOfEnableUserName = cb_EnableNeedusername.Checked,
+
+                    IsSwitchSupportDisableRecovering = cb_SupportDisableRecovery.Checked,
+                    SwitchCommandForConfigMode = tb_CommandGetIntoConfigMode.Text,
+                    SwitchCommandForRecoving = tb_RecoveryCommand.Text,
+                    SwitchCommandForEndConfig = tb_EndRecoveryCommand.Text
+
+                    
                 });
                 flushToMem();
             }
@@ -157,7 +174,12 @@ namespace DisableGetConfig
                     CommandForFindStatus = tb_findPort.Text.Trim(),
 
                     IsThisSwitchNeedsOfEnableUserName = cb_EnableNeedusername.Checked,
-                    IsThisSwitchNeedsOfUserName = cb_NeeduserName.Checked
+                    IsThisSwitchNeedsOfUserName = cb_NeeduserName.Checked,
+
+                    IsSwitchSupportDisableRecovering = cb_SupportDisableRecovery.Checked,
+                    SwitchCommandForConfigMode = tb_CommandGetIntoConfigMode.Text,
+                    SwitchCommandForRecoving = tb_RecoveryCommand.Text,
+                    SwitchCommandForEndConfig = tb_EndRecoveryCommand.Text
                 };
                 flushToMem();
             }
@@ -207,6 +229,11 @@ namespace DisableGetConfig
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             flushItem();
+        }
+
+        private void cb_SupportDisableRecovery_CheckedChanged(object sender, EventArgs e)
+        {
+            tb_CommandGetIntoConfigMode.Enabled = tb_EndRecoveryCommand.Enabled = tb_RecoveryCommand.Enabled = cb_SupportDisableRecovery.Checked;
         }
     }
 }

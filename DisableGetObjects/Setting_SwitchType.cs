@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 
 namespace DisableGetObjects
@@ -71,6 +72,38 @@ namespace DisableGetObjects
         /// 用于筛选Disable项的字符串
         /// </summary>
         public string ScreeningStringForDisableItem { get; set; }
+
+        [OptionalField(VersionAdded = 2)]
+        bool m_IsSwitchSupportDisableRecovering;
+
+        [OptionalField(VersionAdded = 2)]
+        string m_SwitchCommandForConfigMode;
+
+        [OptionalField(VersionAdded = 2)]
+        string m_SwitchCommandForRecoving;
+
+        [OptionalField(VersionAdded = 2)]
+        string m_SwitchCommandForEndConfig;
+
+        /// <summary>
+        /// 交换机是否支持Disable恢复
+        /// </summary>
+        public bool IsSwitchSupportDisableRecovering { get { return m_IsSwitchSupportDisableRecovering; } set { m_IsSwitchSupportDisableRecovering = value; } }
+
+        /// <summary>
+        /// 交换机进入配置模式的命令
+        /// </summary>
+        public string SwitchCommandForConfigMode { get { return m_SwitchCommandForConfigMode; } set { m_SwitchCommandForConfigMode = value; } }
+
+        /// <summary>
+        /// 交换机恢复指令
+        /// </summary>
+        public string SwitchCommandForRecoving { get { return m_SwitchCommandForRecoving; } set { m_SwitchCommandForRecoving = value; } }
+
+        /// <summary>
+        /// 交换机退出配置模式指令
+        /// </summary>
+        public string SwitchCommandForEndConfig { get { return m_SwitchCommandForEndConfig; } set { m_SwitchCommandForEndConfig = value; } }
 
         public override string ToString()
         {
