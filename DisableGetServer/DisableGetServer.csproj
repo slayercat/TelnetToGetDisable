@@ -91,9 +91,6 @@
     <Compile Include="Datastructs\PriorityQueue.cs" />
     <Compile Include="Datastructs\Commands\ICommand.cs" />
     <Compile Include="Datastructs\Commands\SearchForDisable.cs" />
-    <Compile Include="Scan_FlushSwitchAndScanForResult.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="DEBUG.cs">
       <SubType>Form</SubType>
     </Compile>
