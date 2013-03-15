@@ -87,6 +87,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ApplicationStatics.cs" />
+    <Compile Include="Datastructs\PriorityQueue.cs" />
+    <Compile Include="Datastructs\Commands\ICommand.cs" />
+    <Compile Include="Datastructs\Commands\SearchForDisable.cs" />
     <Compile Include="Scan_FlushSwitchAndScanForResult.cs">
       <SubType>Component</SubType>
     </Compile>

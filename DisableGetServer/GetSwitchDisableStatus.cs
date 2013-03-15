@@ -23,7 +23,7 @@ namespace DisableGetServer
         /// <summary>
         /// 当前程序的设置
         /// </summary>
-        DisableGetObjects.ApplicationSettings settings = new DisableGetObjects.ApplicationSettings();
+        DisableGetObjects.ApplicationSettings settings = ApplicationStatics.Settings;
 
         /// <summary>
         /// 用于在交换机类型的List和Array间相互转换。
@@ -64,6 +64,11 @@ namespace DisableGetServer
         /// WEB访问端口
         /// </summary>
         const int PORT = 9999;
+
+        /// <summary>
+        /// 默认的低优先级队列的优先级
+        /// </summary>
+        const int DEFAULT_LOW_PRI = 10000;
 
         /// <summary>
         /// 用于等待web访问，web访问线程的执行方
@@ -366,7 +371,7 @@ namespace DisableGetServer
         /// <summary>
         /// 交换机队列，扫描时使用
         /// </summary>
-        Queue<DisableGetObjects.Setting_Type_Switch> servQueue = new Queue<DisableGetObjects.Setting_Type_Switch>();
+        Datastructs.PriorityQueue<Datastructs.Commands.ICommand> servQueue;
 
         /// <summary>
         /// 交换机列表，给出报告时使用
@@ -376,7 +381,7 @@ namespace DisableGetServer
         /// <summary>
         /// 当前正在扫描的项，为线程个数
         /// </summary>
-        DisableGetObjects.Setting_Type_Switch[] servItem = new DisableGetObjects.Setting_Type_Switch[THREAD_COUNTS];
+        Datastructs.Commands.ICommand[] servItem = new Datastructs.Commands.ICommand[THREAD_COUNTS];
 
         /// <summary>
         /// 交换机队列锁
@@ -401,19 +406,7 @@ namespace DisableGetServer
         public void InitAndStart()
         {
 
-            LogInToEvent.WriteDebug("读取配置文件");
-            settings.ReadFromConfigureFile();
-            string i = DisableGetObjects.Log.OverallLog.GetErr();
-            LogInToEvent.WriteDebug("读取配置文件完毕");
 
-            LogInToEvent.WriteDebug("记录信息 Info:" + DisableGetObjects.Log.OverallLog.GetLog());
-            LogInToEvent.WriteDebug("记录信息 Error:" + i);
-
-            if (i.Trim().Length != 0)
-            {
-                LogInToEvent.WriteDebug("配置文件错误：\n" + i);
-                throw new Exception("读取配置文件过程中出现问题，记录如下：\n" + i);
-            }
             if (
                 settings.FlushTime == 0
                 ||
@@ -431,7 +424,13 @@ namespace DisableGetServer
             turnItemIntoList(settings.ItemConfigWoods, ref servList);
             lock (lockServQueue)
             {
-                servQueue = new Queue<DisableGetObjects.Setting_Type_Switch>(servList);
+                servQueue = new Datastructs.PriorityQueue<Datastructs.Commands.ICommand>();
+                foreach (var t in servList)
+                {
+                    // 约定为DEFAULT_LOW_PRI ，普通的为低优先级
+                    servQueue.Enqueue(new Datastructs.Commands.SearchForDisable(t, new Datastructs.Commands.SearchForDisable.DelegateCommand(Scan_FlushSwitchAndScanForResult)), DEFAULT_LOW_PRI);
+                }
+                
             }
 
             LogInToEvent.WriteDebug("列出待服务队列完成，共" + servList.Count + "项");
@@ -487,10 +486,10 @@ namespace DisableGetServer
                 try
                 {
                     LogInToEvent.WriteDebug("试图取得待操作对象");
-                    DisableGetObjects.Setting_Type_Switch nowUsingItem = null;
+                    Datastructs.Commands.ICommand nowUsingItem = null;
                     lock (lockServQueue)
                     {
-                        if (servQueue.Count != 0)
+                        if (!servQueue.IsEmpty())
                         {
                             nowUsingItem = servQueue.Dequeue();
                         }
@@ -503,32 +502,17 @@ namespace DisableGetServer
                         }
 
                         //执行操作
-                        LogInToEvent.WriteDebug("取得待操作对象成功" + "，NAME=" + nowUsingItem.Name + " IP=" + nowUsingItem.IpAddress);
-                        TimeSpan p = DateTime.Now - nowUsingItem.LastFlushTime;
-                        LogInToEvent.WriteDebug("上次刷新时间：" + nowUsingItem.LastFlushTime + "，NAME=" + nowUsingItem.Name + " IP=" + nowUsingItem.IpAddress);
-                        if (p.TotalMinutes > settings.FlushTime)
+                        if (nowUsingItem.IfNeedExecution)
                         {
-                            //需要刷新
-                            LogInToEvent.WriteDebug("需要并进行刷新" + "，NAME=" + nowUsingItem.Name + " IP=" + nowUsingItem.IpAddress);
-                            Scan_FlushSwitchAndScanForResult(nowUsingItem);
+                            nowUsingItem.DoCommand();
                         }
                         else
                         {
-                            //不需要刷新，等待
-                            LogInToEvent.WriteDebug("不需要，等待刷新" + "，NAME=" + nowUsingItem.Name + " IP=" + nowUsingItem.IpAddress);
-                            //等待一段时间
-                            TimeSpan var_target = new TimeSpan(0, settings.FlushTime, 0);
-                            System.Threading.Thread.Sleep(var_target - p);
-                            //刷新
-                            LogInToEvent.WriteDebug("等待结束，进行刷新" + "，NAME=" + nowUsingItem.Name + " IP=" + nowUsingItem.IpAddress);
-                            Scan_FlushSwitchAndScanForResult(nowUsingItem);
+                            System.Threading.Thread.Sleep(1000);
                         }
-                        LogInToEvent.WriteDebug("处理结束，加入队列" + "，NAME=" + nowUsingItem.Name + " IP=" + nowUsingItem.IpAddress);
                         lock (lockServQueue)
                         {
-                            nowUsingItem.LastFlushLog += "\n\n" + "加入队列" + "\n\n";
-                            servQueue.Enqueue(nowUsingItem);
-                            nowUsingItem.LastFlushLog += "\n\n" + "加入队列结束" + "\n\n";
+                            servQueue.Enqueue(nowUsingItem, DEFAULT_LOW_PRI);
                         }
                         lock (lockservItem)
                         {

@@ -333,51 +333,7 @@ namespace DisableGetServer
                 { nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送状态查询指令完成+1s\n"; }
                 try
                 {
-                    //筛选项目
-                    //若没有commandline，则不断发送空格，直到有为止
-                    /*string dataContains = telnetSwitch.WorkingData;
-                    LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取到ORA1项目：\n" + dataContains);
-                    while (!dataContains.ToLower().Contains(whatTypeOfSwitch.PromptForCommandAfterEnable.ToLower()))
-                    {
-                        telnetSwitch.Send(" ");
-                        System.Threading.Thread.Sleep(5000);//等待5s
-                        dataContains += telnetSwitch.WorkingData;
-                        LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "取到ORA2项目：\n" + dataContains);
-                    }*/
-
-
-
-
-                    /* telnetSwitch.SendResponse(" ",true);
-                     LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待命令行，发送空格1\n");
-                     nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送空格\n";
-                     telnetSwitch.WaitForChangedScreen();
-                     System.Threading.Thread.Sleep(1000);
-                     nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "发送空格+2s\n";
-                     string wegets = telnetSwitch.GetHistory.Replace(beforeSendSearchCommand, "");
-
-                     while (!wegets.Trim().ToLower().Contains(whatTypeOfSwitch.PromptForCommandAfterEnable.ToLower()))
-                     {
-                         //一直到命令行出来为止
-                         nowUsingItem.LastFlushLog += "\n" + nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待命令行："+wegets+"\n";
-                         LogInToEvent.WriteDebug(nowUsingItem.Name + "/" + nowUsingItem.IpAddress + "-" + "等待命令行，发送空格：" + wegets + "\n");
-                         telnetSwitch.SendResponse(" ", true);
-                         telnetSwitch.WaitForChangedScreen();
-                         System.Threading.Thread.Sleep(1000);
-                        
-                     }*/
-
-
-
-
-
-
-
-
-                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    //ora:telnetSwitch.SendResponse(" \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n \r\n", true);
-                    //////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    //大量交换机显示==more==信息，因此需要等待命令行
+                     //大量交换机显示==more==信息，因此需要等待命令行
                     //added @ 2012 05 20 by sc
 
                     for (int counter = 0; counter < 20; ++counter)
